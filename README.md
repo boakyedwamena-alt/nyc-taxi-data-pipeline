@@ -1,0 +1,130 @@
+# NYC Taxi: Advanced Database & Data Engineering Pipeline
+
+An end-to-end ELT pipeline that ingests public NYC taxi trips and weather data into PostgreSQL,
+models them into a tested star schema with dbt, orchestrates everything with Airflow, and serves
+insights through a Streamlit dashboard. The repo also documents the database performance work
+(partitioning, indexing, materialized views) with `EXPLAIN ANALYZE` evidence.
+
+> **Skills demonstrated:** Python ingestion · PostgreSQL (partitioning, indexing, window functions, CTEs,
+> materialized views) · dimensional modelling · dbt (incremental models, tests) · Airflow ·
+> Docker Compose · data quality · CI/CD (GitHub Actions) · analytics & storytelling
+
+## Business questions
+1. When and where is taxi demand highest?
+2. How do rain, snow and temperature affect demand and tipping?
+3. How are fares and revenue trending month over month?
+4. How much raw data is invalid, and why?
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[NYC TLC Parquet<br/>trip records] --> I
+    B[TLC zone lookup CSV] --> I
+    C[Open-Meteo<br/>weather API] --> I
+    I[Python ingestion<br/>idempotent, batched COPY] --> R[(raw schema<br/>partitioned by month)]
+    R --> S[dbt staging<br/>typing, flags, dedupe]
+    S --> M[(marts schema<br/>star schema + analytics marts)]
+    M --> D[Streamlit dashboard]
+    AF{{Airflow DAG<br/>ingest → dbt run → dbt test}} -.orchestrates.-> I
+    AF -.-> S
+    CI[GitHub Actions<br/>ruff · pytest · dbt build] -.validates.-> S
+```
+
+Layers: **raw** (as loaded + lineage columns) → **staging** (typed views, validity flag) →
+**marts** (`fact_trips`, `dim_*`, analytics marts). ERD: [docs/erd.md](docs/erd.md) ·
+Data dictionary: [docs/data_dictionary.md](docs/data_dictionary.md).
+
+## Quick start
+
+Requirements: Docker Desktop.
+
+```bash
+git clone https://github.com/<your-username>/nyc-taxi-data-pipeline.git
+cd nyc-taxi-data-pipeline
+cp .env.example .env            # (already provided)
+make up                         # Postgres + Airflow + dashboard
+make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
+```
+
+| Service | URL |
+|---|---|
+| Dashboard | http://localhost:8501 |
+| Airflow (admin / admin) | http://localhost:8080 |
+| Postgres | localhost:5432 (taxi / taxi) |
+
+Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
+Or trigger the DAG with a month: `airflow dags trigger nyc_taxi_pipeline --conf '{"month":"2024-02"}'`.
+
+## Design decisions
+- **Idempotent loads:** each month is a Postgres list partition; reloading truncates only that
+  partition inside one transaction, so reruns never duplicate rows and failures roll back cleanly.
+- **Fast ingestion:** the Parquet file is streamed in batches and loaded with `COPY`, not row inserts.
+- **Auditable cleaning:** invalid trips are *flagged* in staging and counted in `mart_data_quality`
+  instead of silently dropped.
+- **Incremental fact table:** `fact_trips` uses dbt `delete+insert` on `trip_id`, reprocessing only the latest month onward.
+- **Weather source:** Open-Meteo (no API key needed) in NYC local time to match TLC timestamps.
+  Note: one weather point for the whole city is an approximation.
+
+## Data quality
+dbt tests: unique / not-null keys, accepted values, referential integrity (fact → every dimension) and
+custom tests (no non-positive fares, dropoff after pickup, tip outlier guard). Run: `make dbt-test`.
+
+## Performance work
+See [sql/performance](sql/performance) and record results in [docs/benchmarks.md](docs/benchmarks.md):
+flat vs partitioned tables, B-tree vs BRIN vs covering indexes, and materialized views.
+
+## Key findings
+
+![Dashboard](docs/dashboard.png)
+
+Based on 12.57M valid yellow-taxi trips, January to April 2024.
+
+- **Demand peaks in the evening.** Weekdays average 7,894 trips in the 6 pm hour, the busiest
+  of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend peak is about 19%
+  lower than the weekday peak. Figures are averaged per day, so weekdays are not inflated by
+  there being more of them.
+- **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
+  Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
+  trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
+- **Freezing hours and snow had fewer trips; rain did not.** Average trips per hour were 4,687
+  in mild/dry weather, 4,743 in rain (about the same), 3,824 in snow (-18%) and 2,923 in freezing
+  hours (-38%). Card tips stayed at about 24-25% of the fare in every category, so weather made
+  no visible difference to tipping.
+- **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
+  February, then jumped 21% to $95.3M in March and reached $95.7M in April. Trips rose about 19%
+  from February to March, and the average fare rose from $18.46 to $19.43 over the four months.
+- **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
+  month. The most common problems were zero or negative fares and impossible trip durations.
+  A tip-outlier test also caught 620 January trips with tips above 200% of the fare, which led
+  to a new validation rule.
+
+**Caveats:** this is four months of data, so the seasonal findings are indicative only. Weather
+comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
+part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
+analysis shows association, not cause.
+
+## Repo layout
+```
+ingestion/        Python loaders (trips, zones, weather)
+airflow/          Dockerfile + DAG
+dbt_project/      staging, marts, macros, tests
+sql/init/         DDL run on first container start
+sql/performance/  partitioning / indexing / matview experiments
+dashboard/        Streamlit app
+docs/             ERD, data dictionary, benchmarks
+tests/            pytest unit tests
+.github/          CI workflow
+```
+
+## Development
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+make lint test
+```
+
+## Possible extensions
+Green taxi / FHV data, dbt snapshots, Great Expectations, a cloud warehouse port (BigQuery / Snowflake), dbt docs on GitHub Pages.
+
+Data: NYC TLC Trip Record Data and Open-Meteo (see their terms). Licence: MIT.
