@@ -1,1 +1,52 @@
+name: CI
 
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Unit tests
+        run: pytest -q
+      - name: Lint plain SQL (non-blocking style check)
+        run: sqlfluff lint sql/init sql/performance
+        continue-on-error: true
+
+  dbt:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: taxi
+          POSTGRES_PASSWORD: taxi
+          POSTGRES_DB: taxi
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U taxi" --health-interval 5s --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install dbt-core==1.8.8 dbt-postgres==1.8.2
+      - name: Create raw tables
+        run: PGPASSWORD=taxi psql -h localhost -U taxi -d taxi -f sql/init/01_raw_schema.sql
+      - name: dbt parse + build on empty raw layer (validates SQL, DAG and tests)
+        working-directory: dbt_project
+        run: |
+          dbt parse --profiles-dir .
+          dbt build --profiles-dir .
