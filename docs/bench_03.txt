@@ -1,0 +1,77 @@
+                                                                                        QUERY PLAN                                                                                        
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=88233.72..88233.75 rows=10 width=12) (actual time=2042.965..2045.538 rows=10 loops=1)
+   Buffers: shared hit=17 read=65552
+   ->  Sort  (cost=88233.72..88234.22 rows=200 width=12) (actual time=2042.964..2045.535 rows=10 loops=1)
+         Sort Key: (count(*)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=17 read=65552
+         ->  Finalize GroupAggregate  (cost=88178.73..88229.40 rows=200 width=12) (actual time=2042.604..2045.477 rows=260 loops=1)
+               Group Key: yellow_trips.pu_location_id
+               Buffers: shared hit=14 read=65552
+               ->  Gather Merge  (cost=88178.73..88225.40 rows=400 width=12) (actual time=2042.596..2045.339 rows=748 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=14 read=65552
+                     ->  Sort  (cost=87178.71..87179.21 rows=200 width=12) (actual time=2035.310..2035.328 rows=249 loops=3)
+                           Sort Key: yellow_trips.pu_location_id
+                           Sort Method: quicksort  Memory: 34kB
+                           Buffers: shared hit=14 read=65552
+                           Worker 0:  Sort Method: quicksort  Memory: 34kB
+                           Worker 1:  Sort Method: quicksort  Memory: 34kB
+                           ->  Partial HashAggregate  (cost=87169.07..87171.07 rows=200 width=12) (actual time=2035.158..2035.200 rows=249 loops=3)
+                                 Group Key: yellow_trips.pu_location_id
+                                 Batches: 1  Memory Usage: 61kB
+                                 Buffers: shared read=65552
+                                 Worker 0:  Batches: 1  Memory Usage: 61kB
+                                 Worker 1:  Batches: 1  Memory Usage: 61kB
+                                 ->  Parallel Seq Scan on yellow_trips_2024_01 yellow_trips  (cost=0.00..80992.76 rows=1235261 width=4) (actual time=0.406..1807.385 rows=988208 loops=3)
+                                       Filter: (source_month = '2024-01'::text)
+                                       Buffers: shared read=65552
+ Planning:
+   Buffers: shared hit=89 read=24
+ Planning Time: 5.790 ms
+ Execution Time: 2045.661 ms
+(32 rows)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=362243.13..362243.16 rows=10 width=12) (actual time=3932.967..3937.322 rows=10 loops=1)
+   Buffers: shared hit=14 read=286953
+   ->  Sort  (cost=362243.13..362243.66 rows=211 width=12) (actual time=3921.217..3925.571 rows=10 loops=1)
+         Sort Key: (count(*)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=14 read=286953
+         ->  Finalize GroupAggregate  (cost=362185.12..362238.57 rows=211 width=12) (actual time=3920.892..3925.510 rows=260 loops=1)
+               Group Key: pu_location_id
+               Buffers: shared hit=14 read=286953
+               ->  Gather Merge  (cost=362185.12..362234.35 rows=422 width=12) (actual time=3920.871..3925.365 rows=753 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=14 read=286953
+                     ->  Sort  (cost=361185.09..361185.62 rows=211 width=12) (actual time=3878.242..3878.258 rows=251 loops=3)
+                           Sort Key: pu_location_id
+                           Sort Method: quicksort  Memory: 34kB
+                           Buffers: shared hit=14 read=286953
+                           Worker 0:  Sort Method: quicksort  Memory: 35kB
+                           Worker 1:  Sort Method: quicksort  Memory: 34kB
+                           ->  Partial HashAggregate  (cost=361174.84..361176.95 rows=211 width=12) (actual time=3878.106..3878.145 rows=251 loops=3)
+                                 Group Key: pu_location_id
+                                 Batches: 1  Memory Usage: 61kB
+                                 Buffers: shared read=286953
+                                 Worker 0:  Batches: 1  Memory Usage: 77kB
+                                 Worker 1:  Batches: 1  Memory Usage: 61kB
+                                 ->  Parallel Seq Scan on trips_flat  (cost=0.00..355024.78 rows=1230012 width=4) (actual time=129.254..3573.669 rows=988208 loops=3)
+                                       Filter: (source_month = '2024-01'::text)
+                                       Rows Removed by Filter: 3368148
+                                       Buffers: shared read=286953
+ Planning:
+   Buffers: shared hit=50 read=9 dirtied=1
+ Planning Time: 1.679 ms
+ JIT:
+   Functions: 25
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 3.591 ms, Inlining 0.000 ms, Optimization 2.649 ms, Emission 58.240 ms, Total 64.480 ms
+ Execution Time: 3961.053 ms
+(37 rows)
+
