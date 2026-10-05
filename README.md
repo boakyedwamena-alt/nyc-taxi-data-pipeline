@@ -1,4 +1,5 @@
 # NYC Taxi: Advanced Database & Data Engineering Pipeline
+![CI](https://github.com/boakyedwamena-alt/nyc-taxi-data-pipeline/actions/workflows/ci.yml/badge.svg)
 
 An end-to-end ELT pipeline that ingests public NYC taxi trips and weather data into PostgreSQL,
 models them into a tested star schema with dbt, orchestrates everything with Airflow, and serves
