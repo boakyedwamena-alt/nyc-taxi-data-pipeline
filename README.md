@@ -45,12 +45,14 @@ Orchestration: the Airflow DAG runs ingest, then `dbt run`, then `dbt test`. Run
 Requirements: Docker Desktop.
 
 ```bash
-git clone https://github.com/<boakyedwamena-alt>/nyc-taxi-data-pipeline.git
+git clone https://github.com/boakyedwamena-alt/nyc-taxi-data-pipeline.git
 cd nyc-taxi-data-pipeline
-cp .env.example .env            # (already provided)
 make up                         # Postgres + Airflow + dashboard
 make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 ```
+
+No `.env` file is needed: the Docker setup has working defaults. Copy `.env.example` to `.env` only if you want to change the database credentials.
+
 **On Windows without `make`**, run these instead:
 
 ```bash
@@ -59,8 +61,9 @@ docker compose exec -T airflow python -m ingestion.ingest --month 2024-01
 docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt run --profiles-dir ."
 docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt test --profiles-dir ."
 ```
-Once `make up` has finished, open these addresses **on your own machine** (they only work while
-the project is running locally in Docker, because `localhost` means your own computer):
+
+Once the containers have started, open these addresses **on your own machine** (they only work
+while the project is running locally in Docker, because `localhost` means your own computer):
 
 | Service | Address | Login |
 |---|---|---|
