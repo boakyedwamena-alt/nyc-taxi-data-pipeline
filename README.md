@@ -52,11 +52,17 @@ make up                         # Postgres + Airflow + dashboard
 make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 ```
 
-| Service | URL |
-|---|---|
-| Dashboard | http://localhost:8501 |
-| Airflow (admin / admin) | http://localhost:8080 |
-| Postgres | localhost:5432 (taxi / taxi) |
+Once `make up` has finished, open these addresses **on your own machine** (they only work while
+the project is running locally in Docker, because `localhost` means your own computer):
+
+| Service | Address | Login |
+|---|---|---|
+| Dashboard | `http://localhost:8501` | none |
+| Airflow | `http://localhost:8080` | admin / admin |
+| Postgres | `localhost:5432` | taxi / taxi |
+
+**Not running it yourself?** The dashboard and Airflow screenshots in this README show the
+pipeline working: [dashboard](docs/dashboard.png) and [Airflow runs](docs/airflow_dag.png).
 
 Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
 Or trigger the DAG with a month: `airflow dags trigger nyc_taxi_pipeline --conf '{"month":"2024-02"}'`.
