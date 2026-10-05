@@ -36,6 +36,8 @@ Layers: **raw** (as loaded + lineage columns) → **staging** (typed views, vali
 **marts** (`fact_trips`, `dim_*`, analytics marts). ERD: [docs/erd.md](docs/erd.md) ·
 Data dictionary: [docs/data_dictionary.md](docs/data_dictionary.md).
 
+![Airflow DAG](docs/airflow_dag.png)
+
 ## Quick start
 
 Requirements: Docker Desktop.
@@ -56,8 +58,6 @@ make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 
 Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
 Or trigger the DAG with a month: `airflow dags trigger nyc_taxi_pipeline --conf '{"month":"2024-02"}'`.
-
-![Airflow DAG](docs/airflow_dag.png)
 
 ## Design decisions
 - **Idempotent loads:** each month is a Postgres list partition; reloading truncates only that
