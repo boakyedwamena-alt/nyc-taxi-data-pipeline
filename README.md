@@ -57,6 +57,8 @@ make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
 Or trigger the DAG with a month: `airflow dags trigger nyc_taxi_pipeline --conf '{"month":"2024-02"}'`.
 
+![Airflow DAG](docs/airflow_dag.png)
+
 ## Design decisions
 - **Idempotent loads:** each month is a Postgres list partition; reloading truncates only that
   partition inside one transaction, so reruns never duplicate rows and failures roll back cleanly.
