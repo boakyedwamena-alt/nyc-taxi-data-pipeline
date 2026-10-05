@@ -40,7 +40,7 @@ Data dictionary: [docs/data_dictionary.md](docs/data_dictionary.md).
 Requirements: Docker Desktop.
 
 ```bash
-git clone https://github.com/<your-username>/nyc-taxi-data-pipeline.git
+git clone https://github.com/<boakyedwamena-alt>/nyc-taxi-data-pipeline.git
 cd nyc-taxi-data-pipeline
 cp .env.example .env            # (already provided)
 make up                         # Postgres + Airflow + dashboard
