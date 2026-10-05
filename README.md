@@ -31,14 +31,14 @@ flowchart LR
     AF -.-> S
     CI[GitHub Actions<br/>ruff · pytest · dbt build] -.validates.-> S
 ```
-Orchestration: the Airflow DAG runs ingest, then `dbt run`, then `dbt test`. Runs complete in roughly 40 minutes to 2 hours on an 8 GB laptop.
-
-![Airflow DAG runs](docs/airflow_dag.png)
 
 Layers: **raw** (as loaded + lineage columns) → **staging** (typed views, validity flag) →
 **marts** (`fact_trips`, `dim_*`, analytics marts). ERD: [docs/erd.md](docs/erd.md) ·
 Data dictionary: [docs/data_dictionary.md](docs/data_dictionary.md).
 
+Orchestration: the Airflow DAG runs ingest, then `dbt run`, then `dbt test`. Runs complete in roughly 40 minutes to 2 hours on an 8 GB laptop.
+
+![Airflow DAG runs](docs/airflow_dag.png)
 
 ## Quick start
 
