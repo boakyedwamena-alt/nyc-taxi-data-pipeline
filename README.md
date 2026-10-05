@@ -51,7 +51,14 @@ cp .env.example .env            # (already provided)
 make up                         # Postgres + Airflow + dashboard
 make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 ```
+**On Windows without `make`**, run these instead:
 
+```bash
+docker compose up -d --build
+docker compose exec -T airflow python -m ingestion.ingest --month 2024-01
+docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt run --profiles-dir ."
+docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt test --profiles-dir ."
+```
 Once `make up` has finished, open these addresses **on your own machine** (they only work while
 the project is running locally in Docker, because `localhost` means your own computer):
 
