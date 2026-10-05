@@ -1,6 +1,7 @@
 """Streamlit dashboard over the marts layer."""
 import os
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine
@@ -28,8 +29,10 @@ def q(sql: str) -> pd.DataFrame:
 st.title("NYC Yellow Taxi: demand, weather and fares")
 
 try:
-    kpi = q("select count(*) trips, sum(total_amount) revenue, avg(fare_amount) fare "
-            "from marts.fact_trips").iloc[0]
+    kpi = q(
+        "select count(*) trips, sum(total_amount) revenue, avg(fare_amount) fare "
+        "from marts.fact_trips"
+    ).iloc[0]
 except Exception:
     st.error("Marts not found. Run the pipeline first: `make pipeline MONTH=2024-01`")
     st.stop()
@@ -39,18 +42,39 @@ c1.metric("Trips", f"{int(kpi.trips):,}")
 c2.metric("Revenue", f"${kpi.revenue:,.0f}")
 c3.metric("Avg fare", f"${kpi.fare:,.2f}")
 
-st.subheader("1. When is demand highest? (trips by hour, weekday vs weekend)")
+st.subheader("1. When is demand highest? (average trips per day, by hour)")
+st.caption(
+    "Each point is the total for that hour divided by the number of weekdays "
+    "(or weekend days) in the data, so the two lines can be compared fairly."
+)
 hourly = q("""
-    select hour_of_day,
-           case when is_weekend then 'Weekend' else 'Weekday' end as day_type,
-           sum(trips) trips
-    from marts.mart_hourly_zone_demand group by 1, 2 order by 1""")
-st.line_chart(hourly.pivot(index="hour_of_day", columns="day_type", values="trips"))
+    select extract(hour from f.pickup_datetime)::int as hour_of_day,
+           case when d.is_weekend then 'Weekend' else 'Weekday' end as day_type,
+           (count(*)::numeric / count(distinct f.pickup_date))::float as avg_trips_per_day
+    from marts.fact_trips f
+    join marts.dim_date d on d.date_id = f.pickup_date
+    group by 1, 2
+    order by 1""")
+st.line_chart(hourly.pivot(index="hour_of_day", columns="day_type", values="avg_trips_per_day"))
 
 st.subheader("2. Which zones have the most pickups?")
-zones = q("""select borough || ' - ' || zone_name as zone, sum(trips) trips
-             from marts.mart_hourly_zone_demand group by 1 order by 2 desc limit 15""")
-st.bar_chart(zones.set_index("zone"))
+zones = q("""
+    select borough || ' - ' || zone_name as zone, sum(trips)::bigint as trips
+    from marts.mart_hourly_zone_demand
+    group by 1
+    order by 2 desc
+    limit 15""")
+zone_chart = (
+    alt.Chart(zones)
+    .mark_bar()
+    .encode(
+        x=alt.X("trips:Q", title="Pickups"),
+        y=alt.Y("zone:N", sort="-x", title=None),
+        tooltip=["zone", "trips"],
+    )
+    .properties(height=450)
+)
+st.altair_chart(zone_chart, use_container_width=True)
 
 st.subheader("3. How does weather affect demand and tipping?")
 weather = q("select * from marts.mart_weather_impact order by avg_trips_per_hour desc")
@@ -65,5 +89,7 @@ monthly = q("select * from marts.mart_monthly_revenue order by source_month")
 st.line_chart(monthly.set_index("source_month")[["revenue", "revenue_3m_avg"]])
 
 st.subheader("5. Data quality: rows rejected per month")
-st.dataframe(q("select * from marts.mart_data_quality order by source_month"),
-             use_container_width=True)
+st.dataframe(
+    q("select * from marts.mart_data_quality order by source_month"),
+    use_container_width=True,
+)
