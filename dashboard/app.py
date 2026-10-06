@@ -84,7 +84,7 @@ a.bar_chart(weather.set_index("weather_category")["avg_trips_per_hour"])
 b.caption("Average card tip (% of fare)")
 b.bar_chart(weather.set_index("weather_category")["avg_tip_pct"])
 
-st.subheader("4. Revenue and fare trend")
+st.subheader("4. Monthly revenue trend")
 monthly = q("select * from marts.mart_monthly_revenue order by source_month")
 st.line_chart(monthly.set_index("source_month")[["revenue", "revenue_3m_avg"]])
 
