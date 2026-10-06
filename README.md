@@ -28,7 +28,7 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend evening peak is about
   19% lower than the weekday peak, although weekends are far busier after midnight (see below).
   Figures are averaged per day, so weekdays are not inflated by there being more of them.
-  - **Late-night demand is a weekend pattern.** Between midnight and 4 am, weekends average about
+- **Late-night demand is a weekend pattern.** Between midnight and 4 am, weekends average about
   16,000 trips per day against about 3,400 on weekdays (roughly 4.8 times as many); at 2 am the gap is
   7 times (3,352 against 471). Weekend days are assigned by pickup date, so trips just after midnight
   on Saturday and Sunday are counted as weekend, which probably reflects Friday and Saturday nights out.
