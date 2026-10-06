@@ -69,7 +69,7 @@ zone_chart = (
     .mark_bar()
     .encode(
         x=alt.X("trips:Q", title="Pickups"),
-        y=alt.Y("zone:N", sort="-x", title=None),
+        y=alt.Y("zone:N", sort="-x", title=None, axis=alt.Axis(labelLimit=320)),
         tooltip=["zone", "trips"],
     )
     .properties(height=450)
