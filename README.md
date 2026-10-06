@@ -39,15 +39,16 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   February, then $95.3M in March and $95.7M in April. Part of the 21% February-to-March jump is the
   calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
   (99,614 to 110,462). The rise was broad-based: both weekdays (+11.5%) and weekends (+9.9%) grew,
-  airports added the most trips per day (JFK +651, LaGuardia +443), and the increase started around the end of February.
-  This fits a seasonal pickup, but one year of data cannot separate seasonality from a one-off effect.
-  Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but within each month
-  day-to-day temperature showed no relationship with weekday trips (correlation -0.01 over 87 days),
-  so weather alone does not appear to explain the increase.
+  airports added the most trips per day (JFK +651, LaGuardia +443), and the increase started around
+  the end of February. This fits a seasonal pickup, but one year of data cannot separate seasonality
+  from a one-off effect. Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but
+  within each month day-to-day temperature showed no relationship with weekday trips
+  (correlation -0.01 over 87 days), so weather alone does not appear to explain the increase.
 - **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
-  month. Among the most common problems were zero or negative fares and impossible trip durations.
-  A tip-outlier test also caught 620 January trips with tips above 200% of the fare, which led
-  to a new validation rule.
+  month. Trip distances outside 0.1-200 miles were the largest single cause in January to March
+  (about level with zero or negative fares in April); durations outside 1-360 minutes were also common.
+  A trip can break several rules, so these counts overlap. A tip-outlier test also caught 620 January
+  trips with tips above 200% of the fare, which led to a new validation rule.
 
 **Caveats:** this is four months of data, so the seasonal findings are indicative only. Weather
 comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
@@ -84,7 +85,7 @@ not proven causes (four months, one city, one weather point).
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
 | Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%) | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
-| About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; zero or negative fares and impossible durations were among the causes | Validate fare and trip duration at the point of recording, so revenue figures are not distorted by bad records |
+| About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; bad distances, zero or negative fares and impossible durations were among the main causes | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
 **Next questions worth testing:** average fare by zone (is JFK more valuable per trip?), demand
 by hour in freezing weather separated from night-time, and whether the March jump repeats in
