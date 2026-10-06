@@ -36,3 +36,14 @@ order by 1;
 
 -- 5. Rows rejected by the validity rules
 select * from marts.mart_data_quality order by source_month;
+
+-- 6. Early-morning demand (midnight to 4 am), weekday vs weekend, averaged per day
+select
+    extract(hour from f.pickup_datetime)::int as hr,
+    d.is_weekend,
+    round(count(*)::numeric / count(distinct f.pickup_date)) as avg_trips_per_day
+from marts.fact_trips f
+join marts.dim_date d on d.date_id = f.pickup_date
+where extract(hour from f.pickup_datetime) in (0, 1, 2, 3)
+group by 1, 2
+order by 1, 2;
