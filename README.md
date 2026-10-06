@@ -38,7 +38,8 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
   (99,614 to 110,462). The rise was broad-based: both weekdays (+11.5%) and weekends (+9.9%) grew,
   airports grew fastest (JFK about +16%), and the increase began in late February. This fits a
-  seasonal pickup, but one year of data cannot separate seasonality from a one-off effect. Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but within each month
+  seasonal pickup, but one year of data cannot separate seasonality from a one-off effect.
+  Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but within each month
   day-to-day temperature showed no relationship with weekday trips (correlation -0.01 over 87 days),
   so weather alone does not appear to explain the increase.
 - **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
