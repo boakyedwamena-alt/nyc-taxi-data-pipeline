@@ -10,6 +10,8 @@ insights through a Streamlit dashboard. The repo also documents the database per
 > materialized views) · dimensional modelling · dbt (incremental models, tests) · Airflow ·
 > Docker Compose · data quality · CI/CD (GitHub Actions) · analytics & storytelling
 
+[Jump to: Quick start](#quick-start) · [Performance work](#performance-work) · [Design decisions](#design-decisions)
+
 ## Business questions
 1. When and where is taxi demand highest?
 2. How do rain, snow and temperature affect demand and tipping?
@@ -37,8 +39,8 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   February, then $95.3M in March and $95.7M in April. Part of the 21% February-to-March jump is the
   calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
   (99,614 to 110,462). The rise was broad-based: both weekdays (+11.5%) and weekends (+9.9%) grew,
-  airports grew fastest (JFK about +16%), and the increase began in late February. This fits a
-  seasonal pickup, but one year of data cannot separate seasonality from a one-off effect.
+  airports added the most trips per day (JFK +651, LaGuardia +443), and the increase started around the end of February.
+  This fits a seasonal pickup, but one year of data cannot separate seasonality from a one-off effect.
   Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but within each month
   day-to-day temperature showed no relationship with weekday trips (correlation -0.01 over 87 days),
   so weather alone does not appear to explain the increase.
@@ -51,6 +53,7 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
 part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
 analysis shows association, not cause.
+
 The queries behind every number are in [sql/analysis](sql/analysis).
 
 ### Investigation: what drove the March increase?
@@ -61,14 +64,14 @@ Trips per day rose about 11% from February to March 2024. What I checked, and wh
 |---|---|
 | Per-day normalisation | Revenue is up 21% month on month but about 13% per day; March has 31 days against 29 |
 | Weekday vs weekend | Both grew (weekdays +11.5%, weekends +9.9%) |
-| Zones | Broad-based; airports grew fastest (JFK +16%, LaGuardia +15%) |
-| Timing | Weekly trips were flat in February and stepped up in the last week of the month |
+| Zones | Broad-based; the 10 zones that added the most trips account for only about a third of the increase. JFK (+651 per day) and LaGuardia (+443) added the most |
+| Timing | Weekly trips were flat through February, then stepped up in the week starting 26 February (which includes the first days of March) |
 | Trip mix | Slightly longer trips (+4% distance, +5% duration); passengers unchanged |
 | Weather | Warmer in March, but no day-to-day relationship with trips (correlation -0.01) |
 
 **Conclusion:** the increase is broad, started in late February and is not explained by weather
 alone. It is consistent with a seasonal pickup, but with a single year I cannot separate
-seasonality from a one-off effect. Loading the same months from 2023 would settle it.
+seasonality from a one-off effect. Loading the same months from 2023 would be the next test of the seasonal explanation.
 
 ## Business insights and recommendations
 
@@ -172,7 +175,7 @@ custom tests (no non-positive fares, dropoff after pickup, tip outlier guard). R
 
 ## Performance work
 
-Measured on an 8 GB Windows laptop with 12.5M trip rows (single runs, so ratios are indicative).
+Measured on an 8 GB Windows laptop with 12.5M trip rows (single runs; the baseline ran first, so it includes cold-cache effects and the speedups are indicative, not exact).
 Full queries and caveats: [sql/performance](sql/performance) and [docs/benchmarks.md](docs/benchmarks.md).
 
 | Technique | Query | Before | After |
@@ -181,7 +184,6 @@ Full queries and caveats: [sql/performance](sql/performance) and [docs/benchmark
 | BRIN index | Same query | 16,446 ms | 771 ms (21x faster) |
 | Month partitioning | Trips by zone, one month | 3,961 ms (plain table) | 2,046 ms (1.9x faster) |
 | Materialized view | Daily KPIs, one day | 1,682 ms | 0.18 ms |
-
 
 ## Repo layout
 ```
