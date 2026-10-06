@@ -51,6 +51,7 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
 part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
 analysis shows association, not cause.
+The queries behind every number are in [sql/analysis](sql/analysis).
 
 ### Investigation: what drove the March increase?
 
@@ -160,6 +161,10 @@ docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline -
 - **Incremental fact table:** `fact_trips` uses dbt `delete+insert` on `trip_id`, reprocessing only the latest month onward.
 - **Weather source:** Open-Meteo (no API key needed) in NYC local time to match TLC timestamps.
   Note: one weather point for the whole city is an approximation.
+- **Known limitation:** `fact_trips` reprocesses only the latest loaded month onward. After loading
+  an *earlier* month, run `dbt run --full-refresh` so it reaches the fact table.
+- **Airflow scheduling:** switching the DAG on makes Airflow run the latest scheduled month (two
+  months behind today). Pause the DAG, or trigger it manually with a month, if you only want 2024.
 
 ## Data quality
 dbt tests: unique / not-null keys, accepted values, referential integrity (fact → every dimension) and
@@ -185,6 +190,7 @@ airflow/          Dockerfile + DAG
 dbt_project/      staging, marts, macros, tests
 sql/init/         DDL run on first container start
 sql/performance/  partitioning / indexing / matview experiments
+sql/analysis/     queries behind the Key findings and the March investigation
 dashboard/        Streamlit app
 docs/             ERD, data dictionary, benchmarks
 tests/            pytest unit tests
