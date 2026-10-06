@@ -55,7 +55,7 @@ not proven causes (four months, one city, one weather point).
 |---|---|---|
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
-| Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
+| Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%) | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
 | About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; zero or negative fares and impossible durations were among the causes | Validate fare and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
