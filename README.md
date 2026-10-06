@@ -16,6 +16,36 @@ insights through a Streamlit dashboard. The repo also documents the database per
 3. How are fares and revenue trending month over month?
 4. How much raw data is invalid, and why?
 
+## Key findings
+
+![Dashboard](docs/dashboard.png)
+
+Based on 12.57M valid yellow-taxi trips, January to April 2024.
+
+- **Demand peaks in the evening.** Weekdays average 7,894 trips in the 6 pm hour, the busiest
+  of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend peak is about 19%
+  lower than the weekday peak. Figures are averaged per day, so weekdays are not inflated by
+  there being more of them.
+- **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
+  Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
+  trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
+- **Freezing hours and snow had fewer trips; rain did not.** Average trips per hour were 4,687
+  in mild/dry weather, 4,743 in rain (about the same), 3,824 in snow (-18%) and 2,923 in freezing
+  hours (-38%). Card tips stayed at about 24-25% of the fare in every category, so weather made
+  no visible difference to tipping.
+- **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
+  February, then jumped 21% to $95.3M in March and reached $95.7M in April. Trips rose about 19%
+  from February to March, and the average fare rose from $18.46 to $19.43 over the four months.
+- **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
+  month. Among the most common problems were zero or negative fares and impossible trip durations.
+  A tip-outlier test also caught 620 January trips with tips above 200% of the fare, which led
+  to a new validation rule.
+
+**Caveats:** this is four months of data, so the seasonal findings are indicative only. Weather
+comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
+part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
+analysis shows association, not cause.
+
 ## Architecture
 
 ```mermaid
@@ -75,7 +105,11 @@ while the project is running locally in Docker, because `localhost` means your o
 pipeline working: [dashboard](docs/dashboard.png) and [Airflow runs](docs/airflow_dag.png).
 
 Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
-Or trigger the DAG with a month: `airflow dags trigger nyc_taxi_pipeline --conf '{"month":"2024-02"}'`.
+Or trigger the DAG for a given month from your terminal:
+
+```bash
+docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline --conf '{\"month\": \"2024-02\"}'"
+```
 
 ## Design decisions
 - **Idempotent loads:** each month is a Postgres list partition; reloading truncates only that
@@ -92,38 +126,17 @@ dbt tests: unique / not-null keys, accepted values, referential integrity (fact 
 custom tests (no non-positive fares, dropoff after pickup, tip outlier guard). Run: `make dbt-test`.
 
 ## Performance work
-See [sql/performance](sql/performance) and record results in [docs/benchmarks.md](docs/benchmarks.md):
-flat vs partitioned tables, B-tree vs BRIN vs covering indexes, and materialized views.
 
-## Key findings
+Measured on an 8 GB Windows laptop with 12.5M trip rows (single runs, so ratios are indicative).
+Full queries and caveats: [sql/performance](sql/performance) and [docs/benchmarks.md](docs/benchmarks.md).
 
-![Dashboard](docs/dashboard.png)
+| Technique | Query | Before | After |
+|---|---|---|---|
+| B-tree index | Pickups by zone, one day | 16,446 ms | 237 ms (69x faster) |
+| BRIN index | Same query | 16,446 ms | 771 ms (21x faster) |
+| Month partitioning | Trips by zone, one month | 3,961 ms (plain table) | 2,046 ms (1.9x faster) |
+| Materialized view | Daily KPIs, one day | 1,682 ms | 0.18 ms |
 
-Based on 12.57M valid yellow-taxi trips, January to April 2024.
-
-- **Demand peaks in the evening.** Weekdays average 7,894 trips in the 6 pm hour, the busiest
-  of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend peak is about 19%
-  lower than the weekday peak. Figures are averaged per day, so weekdays are not inflated by
-  there being more of them.
-- **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
-  Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
-  trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
-- **Freezing hours and snow had fewer trips; rain did not.** Average trips per hour were 4,687
-  in mild/dry weather, 4,743 in rain (about the same), 3,824 in snow (-18%) and 2,923 in freezing
-  hours (-38%). Card tips stayed at about 24-25% of the fare in every category, so weather made
-  no visible difference to tipping.
-- **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
-  February, then jumped 21% to $95.3M in March and reached $95.7M in April. Trips rose about 19%
-  from February to March, and the average fare rose from $18.46 to $19.43 over the four months.
-- **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
-  month. The most common problems were zero or negative fares and impossible trip durations.
-  A tip-outlier test also caught 620 January trips with tips above 200% of the fare, which led
-  to a new validation rule.
-
-**Caveats:** this is four months of data, so the seasonal findings are indicative only. Weather
-comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
-part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
-analysis shows association, not cause.
 
 ## Repo layout
 ```
@@ -140,9 +153,10 @@ tests/            pytest unit tests
 
 ## Development
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
-make lint test
+ruff check . && pytest -q
 ```
 
 ## Possible extensions
