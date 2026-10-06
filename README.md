@@ -25,9 +25,14 @@ insights through a Streamlit dashboard. The repo also documents the database per
 Based on 12.57M valid yellow-taxi trips, January to April 2024.
 
 - **Demand peaks in the evening.** Weekdays average 7,894 trips in the 6 pm hour, the busiest
-  of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend peak is about 19%
-  lower than the weekday peak. Figures are averaged per day, so weekdays are not inflated by
-  there being more of them.
+  of the day. Weekends peak at 6,425 trips in the 5 pm hour, so the weekend evening peak is about
+  19% lower than the weekday peak, although weekends are far busier after midnight (see below).
+  Figures are averaged per day, so weekdays are not inflated by there being more of them.
+  - **Late-night demand is a weekend pattern.** Between midnight and 4 am, weekends average about
+  16,000 trips per day against about 3,400 on weekdays (roughly 4.8 times as many); at 2 am the gap is
+  7 times (3,352 against 471). Weekend days are assigned by pickup date, so trips just after midnight
+  on Saturday and Sunday are counted as weekend, which probably reflects Friday and Saturday nights out.
+  This has not been tested by day of week.
 - **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
   Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
   trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
@@ -82,6 +87,7 @@ not proven causes (four months, one city, one weather point).
 | Insight | Evidence | Suggested action |
 |---|---|---|
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
+| Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Keep a larger late-night fleet on Friday and Saturday nights, and a minimal one on weeknights |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
 | Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%) | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
