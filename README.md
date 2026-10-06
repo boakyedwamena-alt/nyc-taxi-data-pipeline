@@ -34,8 +34,14 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   hours (-38%). Card tips stayed at about 24-25% of the fare in every category, so weather made
   no visible difference to tipping.
 - **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
-  February, then jumped 21% to $95.3M in March and reached $95.7M in April. Trips rose about 19%
-  from February to March, and the average fare rose from $18.46 to $19.43 over the four months.
+  February, then $95.3M in March and $95.7M in April. Part of the 21% February-to-March jump is the
+  calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
+  (99,614 to 110,462). The rise was broad-based: both weekdays (+11.5%) and weekends (+9.9%) grew,
+  airports grew fastest (JFK about +16%), and the increase began in late February. This fits a
+  seasonal pickup, but one year of data cannot separate seasonality from a one-off effect.
+  Average temperature also rose from 2.1 °C in February to 7.0 °C in March, but within each month
+  day-to-day temperature showed no relationship with weekday trips (correlation -0.01 over 87 days),
+  so weather alone does not appear to explain the increase.
 - **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
   month. Among the most common problems were zero or negative fares and impossible trip durations.
   A tip-outlier test also caught 620 January trips with tips above 200% of the fare, which led
@@ -45,6 +51,23 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 comes from a single point for all of NYC. Freezing hours probably fall mostly at night, so
 part of the drop is likely the time of day and not the cold. Snow covers only 81 hours. The
 analysis shows association, not cause.
+
+### Investigation: what drove the March increase?
+
+Trips per day rose about 11% from February to March 2024. What I checked, and what it showed:
+
+| Check | Finding |
+|---|---|
+| Per-day normalisation | Revenue is up 21% month on month but about 13% per day; March has 31 days against 29 |
+| Weekday vs weekend | Both grew (weekdays +11.5%, weekends +9.9%) |
+| Zones | Broad-based; airports grew fastest (JFK +16%, LaGuardia +15%) |
+| Timing | Weekly trips were flat in February and stepped up in the last week of the month |
+| Trip mix | Slightly longer trips (+4% distance, +5% duration); passengers unchanged |
+| Weather | Warmer in March, but no day-to-day relationship with trips (correlation -0.01) |
+
+**Conclusion:** the increase is broad, started in late February and is not explained by weather
+alone. It is consistent with a seasonal pickup, but with a single year I cannot separate
+seasonality from a one-off effect. Loading the same months from 2023 would settle it.
 
 ## Business insights and recommendations
 
