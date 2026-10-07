@@ -42,3 +42,23 @@ join marts.dim_weather w on w.weather_hour = h.pickup_hour
 where extract(hour from h.pickup_hour) between 17 and 19
 group by 1, 2
 order by 1, 2;
+
+-- 4. Rainy 5-8 pm evenings, one row per day, with weekend flag
+with h as (
+    select pickup_hour, count(*) as trips
+    from marts.fact_trips
+    group by 1
+)
+select
+    h.pickup_hour::date as day,
+    dd.is_weekend,
+    count(*) as rain_hours,
+    round(avg(h.trips)) as avg_trips
+from h
+join marts.dim_weather w on w.weather_hour = h.pickup_hour
+join marts.dim_date dd on dd.date_id = h.pickup_hour::date
+where w.weather_category = 'Rain'
+  and extract(hour from h.pickup_hour) between 17 and 19
+group by 1, 2
+order by 1;
+
