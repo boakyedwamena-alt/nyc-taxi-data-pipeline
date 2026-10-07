@@ -80,3 +80,12 @@ where not dd.is_weekend
   and extract(hour from h.pickup_hour) between 17 and 19
 group by 1, 2
 order by 1, 2;
+
+-- 6. Freezing hours by month (do freezing hours cluster in the quieter months?)
+select
+    to_char(weather_hour, 'YYYY-MM') as month,
+    count(*) filter (where weather_category = 'Freezing (0C-)') as freezing_hours,
+    count(*) as hours
+from marts.dim_weather
+group by 1
+order by 1;
