@@ -37,20 +37,18 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 - **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
   Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
   trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
-- **Cold weather had little visible effect on evening demand; rain evenings were busier in March and April.**
-  Across all hours, average trips per hour were 4,687 in mild/dry weather, 4,743 in rain, 3,824 in snow
-  and 2,923 in freezing hours (-38%). Most of that raw gap is not weather: 40% of freezing hours fall
-  between midnight and 6 am (about 21% for mild hours), and all freezing evenings are in January and
-  February, when demand was lower overall. Comparing only 5-8 pm hours within the same month, freezing
-  hours averaged 6,377 trips against about 6,515 for mild hours (-2%, 28 hours), and snow was about +2%
-  (8 hours, all in January). Rain evenings were busier than mild evenings in March (+14%, 20 hours) and
-  April (+27%, 14 hours) but not in January or February (+1% to +2%, 14 hours). These cover 21 rain evenings,
-  16 of them weekdays (about 76%, against 72% of all days), so weekday mix does not explain the March result;
-  April is probably somewhat inflated because all six of its rain evenings were weekdays. The effect is also
-  uneven: weekday rain evenings in March and April ranged from about 6,400 to 10,350 trips, with six above
-  9,200 driving most of the average. The sample is small and hours within an evening are not independent,
-  so this is a lead rather than a conclusion. Card tips stayed at about 24-25% of the fare in every category,
-  so weather made no visible difference to tipping.
+- **Cold weather had no visible effect on weekday evening demand; rain evenings were busier.**
+  Across all hours, average trips per hour were 4,687 in mild/dry weather, 4,743 in rain, 3,824 in
+  snow and 2,923 in freezing hours (-38%). Most of that raw gap is not weather: 40% of freezing
+  hours fall between midnight and 6 am (about 21% for mild hours), and all freezing evenings are in
+  January and February, when demand was lower overall. Comparing only weekday 5-8 pm hours within the
+  same month, freezing hours averaged about the same as mild hours (+4% in January, -4% in February;
+  17 hours) and snow was +3% (5 hours, January only). Rain evenings were busier than mild evenings in
+  January (+11%, 7 hours), March (+16%, 11 hours) and April (+22%, 14 hours), and slightly quieter in
+  February (-3%, 4 hours); pooled, about 15% higher over 36 hours from 16 evenings. The sample is
+  small, hours within an evening are not independent and the effect varies a lot from evening to
+  evening, so this is a lead rather than a conclusion. Card tips stayed at about 24-25% of the fare
+  in every category, so weather made no visible difference to tipping.
 - **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
   February, then $95.3M in March and $95.7M in April. Part of the 21% February-to-March jump is the
   calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
@@ -103,11 +101,11 @@ not proven causes (four months, one city, one weather point).
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
 | Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Test by day of week first; if the late-night peak is concentrated on Friday and Saturday nights, staff for those nights and keep a minimal fleet on weeknights |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
-| Cold weather showed little effect once time of day and month are matched; rain evenings may be busier | Across all hours freezing was -38% against mild, but 40% of freezing hours are overnight and all are in January and February. In same-month 5-8 pm hours, freezing was about -2% (28 hours) and snow about +2% (8 hours). Rain was +14% in March and +27% in April (15 evenings) but only +1% to +2% in January and February (6 evenings), and the spring effect is driven by a handful of evenings | Do not cut supply for cold weather on this evidence. Treat the rain effect as a hypothesis and test it on more months (for example 2023) before adding rain-day capacity |
+| Cold weather showed no visible effect on weekday evening demand; rain evenings were busier | Across all hours freezing was -38% against mild, but 40% of freezing hours are overnight and all are in January and February. In same-month weekday 5-8 pm hours, freezing was about the same as mild (17 hours) and snow +3% (5 hours). Rain was about 15% higher (36 hours, 16 evenings), positive in 3 of 4 months | Do not cut supply for cold weather on this evidence. Test extra weekday-evening capacity on rainy days, after checking the pattern on more months (for example 2023) |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
 | About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; mostly zero-distance trips, plus zero or negative fares and impossible durations | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
-**Next questions worth testing:** average fare by zone (is JFK more valuable per trip?), whether the rain effect holds on weekdays only and across more months (including 2023), and whether the March jump repeats in other years.
+**Next questions worth testing:** average fare by zone (is JFK more valuable per trip?), whether the rain effect holds across more months (including 2023), and whether the March jump repeats in other years.
 
 ## Architecture
 
