@@ -50,8 +50,10 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   within each month day-to-day temperature showed no relationship with weekday trips
   (correlation -0.01 over 87 days), so weather alone does not appear to explain the increase.
 - **About 3.8% of raw rows were rejected as invalid.** Rejection stayed between 3.3% and 4.4% each
-  month. Trip distances outside 0.1-200 miles were the largest single cause in January to March
-  (about level with zero or negative fares in April); durations outside 1-360 minutes were also common.
+  month. Bad distances were the largest single cause in January to March (about level with zero or
+  negative fares in April), and about 86% of them were trips recorded as exactly 0 miles (261,577 trips);
+  only 291 were over 200 miles. About 94% of the zero-mile trips had a positive fare (average $25.59),
+  so the rule also discards some trips that look real. Durations outside 1-360 minutes were also common.
   A trip can break several rules, so these counts overlap. A tip-outlier test also caught 620 January
   trips with tips above 200% of the fare, which led to a new validation rule.
 
@@ -91,7 +93,7 @@ not proven causes (four months, one city, one weather point).
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
 | Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%) | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
-| About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; bad distances, zero or negative fares and impossible durations were among the main causes | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
+| About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; mostly zero-distance trips, plus zero or negative fares and impossible durations | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
 **Next questions worth testing:** average fare by zone (is JFK more valuable per trip?), demand
 by hour in freezing weather separated from night-time, and whether the March jump repeats in
@@ -168,6 +170,10 @@ docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline -
 - **Fast ingestion:** the Parquet file is streamed in batches and loaded with `COPY`, not row inserts.
 - **Auditable cleaning:** invalid trips are *flagged* in staging and counted in `mart_data_quality`
   instead of silently dropped.
+- **Cost of the validity rules:** trips with 0 miles but a positive fare (about 245,000, average
+  fare $25.59, roughly $6M in fares) are excluded as invalid. This is deliberately conservative, so
+  revenue totals are probably understated by the order of 2%. Rejections are audited in
+  `mart_data_quality` so the effect stays visible.
 - **Incremental fact table:** `fact_trips` uses dbt `delete+insert` on `trip_id`, reprocessing only the latest month onward.
 - **Weather source:** Open-Meteo (no API key needed) in NYC local time to match TLC timestamps.
   Note: one weather point for the whole city is an approximation.
