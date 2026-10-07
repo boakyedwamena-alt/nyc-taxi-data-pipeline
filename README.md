@@ -90,7 +90,7 @@ not proven causes (four months, one city, one weather point).
 | Insight | Evidence | Suggested action |
 |---|---|---|
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
-| Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Keep a larger late-night fleet on Friday and Saturday nights, and a minimal one on weeknights |
+| Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Test by day of week first; if the late-night peak is concentrated on Friday and Saturday nights, staff for those nights and keep a minimal fleet on weeknights |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
 | Freezing and snowy hours had fewer trips; rain hours did not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%). Freezing hours probably fall mostly at night, so time of day may explain part of the gap | Before cutting supply for cold or snowy weather, compare like-for-like hours of the day. This data gives no reason to cut supply for rain |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
@@ -126,7 +126,8 @@ Orchestration: the Airflow DAG runs ingest, then `dbt run`, then `dbt test`. Run
 
 ## Quick start
 
-Requirements: Docker Desktop.
+Requirements: Docker Desktop, about 8 GB RAM (16 GB is more comfortable) and a few GB of free disk space. The first month
+takes a while to download and load.
 
 ```bash
 git clone https://github.com/boakyedwamena-alt/nyc-taxi-data-pipeline.git
@@ -135,7 +136,8 @@ make up                         # Postgres + Airflow + dashboard
 make pipeline MONTH=2024-01     # ingest -> dbt run -> dbt test
 ```
 
-No `.env` file is needed: the Docker setup has working defaults. Copy `.env.example` to `.env` only if you want to change the database credentials.
+No `.env` file is needed: the Docker setup has working defaults. Copy `.env.example` to `.env` only if you want to change
+the database credentials.
 
 **On Windows without `make`**, run these instead:
 
@@ -175,11 +177,11 @@ docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline -
   fare $25.59, roughly $6M in fares) are excluded as invalid. This is deliberately conservative, so
   revenue totals are probably understated by the order of 2%. Rejections are audited in
   `mart_data_quality` so the effect stays visible.
-- **Incremental fact table:** `fact_trips` uses dbt `delete+insert` on `trip_id`, reprocessing only the latest month onward.
+- **Incremental fact table:** `fact_trips` uses dbt `delete+insert` on `trip_id` and reprocesses only the
+  latest loaded month onward. Limitation: after loading an *earlier* month, run `dbt run --full-refresh`
+  so it reaches the fact table.
 - **Weather source:** Open-Meteo (no API key needed) in NYC local time to match TLC timestamps.
   Note: one weather point for the whole city is an approximation.
-- **Known limitation:** `fact_trips` reprocesses only the latest loaded month onward. After loading
-  an *earlier* month, run `dbt run --full-refresh` so it reaches the fact table.
 - **Airflow scheduling:** switching the DAG on makes Airflow run the latest scheduled month (two
   months behind today). Pause the DAG, or trigger it manually with a month, if you only want 2024.
 
