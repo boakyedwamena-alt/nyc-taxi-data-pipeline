@@ -62,3 +62,21 @@ where w.weather_category = 'Rain'
 group by 1, 2
 order by 1;
 
+-- 5. Weekday-only 5-8 pm comparison by month and weather type
+with h as (
+    select pickup_hour, count(*) as trips
+    from marts.fact_trips
+    group by 1
+)
+select
+    to_char(w.weather_hour, 'YYYY-MM') as month,
+    w.weather_category,
+    count(*) as hours,
+    round(avg(h.trips)) as avg_trips
+from h
+join marts.dim_weather w on w.weather_hour = h.pickup_hour
+join marts.dim_date dd on dd.date_id = h.pickup_hour::date
+where not dd.is_weekend
+  and extract(hour from h.pickup_hour) between 17 and 19
+group by 1, 2
+order by 1, 2;
