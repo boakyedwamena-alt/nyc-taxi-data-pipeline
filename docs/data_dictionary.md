@@ -25,9 +25,10 @@
 | source_month | text | Lineage: `YYYY-MM` of the source file |
 
 ## Validity rules (staging → fact)
-A trip is kept only if: fare > 0, total > 0, 0.1 ≤ distance ≤ 200 miles, 1 ≤ duration ≤ 360 min,
+A trip is kept only if: fare > 0, total > 0, 0.1 ≤ distance ≤ 200 miles, 1 ≤ duration ≤ 360 min, tip ≤ 2 × fare,
 pickup date falls in the file's month, and both zones are present. Rejections are counted per month in
-`marts.mart_data_quality`.
+`marts.mart_data_quality`. The breakdown columns in `mart_data_quality` cover only the fare, duration and distance rules; other rules (tip, pickup month, missing zones) are counted in `rejected_rows` but not broken out, and a trip can break 
+several rules.
 
 ## Dimensions
 `dim_date` (calendar 2019-2027), `dim_zone` (borough / zone / service zone), `dim_payment`
