@@ -77,7 +77,7 @@ Trips per day rose about 11% from February to March 2024. What I checked, and wh
 | Trip mix | Slightly longer trips (+4% distance, +5% duration); passengers unchanged |
 | Weather | Warmer in March, but no day-to-day relationship with trips (correlation -0.01) |
 
-**Conclusion:** the increase is broad, started in late February and is not explained by weather
+**Conclusion:** the increase is broad, began around the end of February and is not explained by weather
 alone. It is consistent with a seasonal pickup, but with a single year I cannot separate
 seasonality from a one-off effect. Loading the same months from 2023 would be the next test of the seasonal explanation.
 
@@ -91,7 +91,7 @@ not proven causes (four months, one city, one weather point).
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
 | Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Keep a larger late-night fleet on Friday and Saturday nights, and a minimal one on weeknights |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
-| Freezing weather and snow reduce trips; rain does not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%) | Plan for lower demand on freezing and snowy days. This data gives no reason to cut supply on rainy days |
+| Freezing and snowy hours had fewer trips; rain hours did not | 2,923 trips per hour when freezing (-38%) and 3,824 in snow (-18%), against 4,687 in mild weather; rain 4,743 (+1%). Freezing hours probably fall mostly at night, so time of day may explain part of the gap | Before cutting supply for cold or snowy weather, compare like-for-like hours of the day. This data gives no reason to cut supply for rain |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
 | About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; mostly zero-distance trips, plus zero or negative fares and impossible durations | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
