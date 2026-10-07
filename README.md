@@ -43,17 +43,13 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
   trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
 - **Cold weather had no visible effect on weekday evening demand; rain evenings were busier in this sample.**
-  Across all hours, average trips per hour were 4,687 in mild/dry weather, 4,743 in rain, 3,824 in
-  snow and 2,923 in freezing hours (-38%). Most of that raw gap is not weather: 40% of freezing
-  hours fall between midnight and 6 am (about 21% for mild hours), and about 92% of freezing hours are in January
-  and February (517 of 563), the months with the lowest demand. Comparing only weekday 5-8 pm hours within the
-  same month, freezing hours averaged about the same as mild hours (+4% in January, -4% in February;
-  17 hours) and snow was +3% (5 hours, January only). Rain evenings were busier than mild evenings in
-  January (+11%, 7 hours), March (+16%, 11 hours) and April (+22%, 14 hours), and slightly quieter in
-  February (-3%, 4 hours); pooled, about 15% higher over 36 hours from 16 evenings. The sample is
-  small, hours within an evening are not independent and the effect varies a lot from evening to
-  evening, so this is a lead rather than a conclusion. Card tips stayed at about 24-25% of the fare
-  in every category, so weather made no visible difference to tipping.
+  Freezing hours looked 38% quieter overall (2,923 against 4,687 trips per hour), but 40% of them fall
+  between midnight and 6 am and about 92% are in January and February, the lowest-demand months. Comparing
+  weekday 5-8 pm hours within the same month, freezing hours were about level with mild hours (+4% in
+  January, -4% in February; 17 hours). Rain evenings were about 15% busier (36 hours from 16 evenings,
+  positive in 3 of 4 months), but the sample is small, so this is a lead rather than a conclusion. Card
+  tips stayed at about 24-25% of the fare in every category. Month-by-month detail:
+  [weather_time_of_day.sql](sql/analysis/weather_time_of_day.sql).
 - **Revenue grew from winter into spring.** Monthly revenue was $78.0M in January and $78.6M in
   February, then $95.3M in March and $95.7M in April. Part of the 21% February-to-March jump is the
   calendar (31 days against 29). Per day, revenue rose about 13% and trips rose about 11%
@@ -170,8 +166,21 @@ while the project is running locally in Docker, because `localhost` means your o
 **Not running it yourself?** The dashboard and Airflow screenshots in this README show the
 pipeline working: [dashboard](docs/dashboard.png) and [Airflow runs](docs/airflow_dag.png).
 
-Load more months for richer trends: `make ingest MONTH=2024-02`, then `make dbt-run dbt-test`.
-Or trigger the DAG for a given month from your terminal:
+### Reproducing the findings
+
+The findings in this README use January to April 2024. After the first month is loaded, add the other three and rebuild. Each month takes a few minutes to download and load, so allow some time.
+
+```bash
+docker compose exec -T airflow python -m ingestion.ingest --month 2024-02
+docker compose exec -T airflow python -m ingestion.ingest --month 2024-03
+docker compose exec -T airflow python -m ingestion.ingest --month 2024-04
+docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt run --profiles-dir ."
+docker compose exec -T airflow bash -c "cd /opt/airflow/dbt_project && /opt/dbt_venv/bin/dbt test --profiles-dir ."
+```
+
+On Mac or Linux, `make ingest MONTH=2024-02` (and so on) followed by `make dbt-run dbt-test` does the same. The queries in [sql/analysis](sql/analysis) then give the numbers quoted above.
+
+You can also run a month through Airflow instead:
 
 ```bash
 docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline --conf '{\"month\": \"2024-02\"}'"
