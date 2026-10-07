@@ -10,6 +10,11 @@ insights through a Streamlit dashboard. The repo also documents the database per
 > materialized views) · dimensional modelling · dbt (incremental models, tests) · Airflow ·
 > Docker Compose · data quality · CI/CD (GitHub Actions) · analytics & storytelling
 
+**At a glance:** 12.57M NYC taxi trips (Jan-Apr 2024) · weekday demand peaks at 6 pm and late-night demand 
+is mostly a weekend pattern · cold weather showed no visible effect on weekday evenings, while rain evenings 
+were busier in this sample · 3.8% of raw rows rejected, mostly zero-distance trips · a one-day query went 
+from about 16 s to under 0.3 s with an index (single run)
+
 [Jump to: Key findings](#key-findings) · [Quick start](#quick-start) · [Performance work](#performance-work) · 
 [Design decisions](#design-decisions)
 
@@ -37,7 +42,7 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 - **Pickups are concentrated in a few zones.** The top five zones (Midtown Center, Upper East
   Side South, Upper East Side North, JFK Airport and Midtown East) account for about 22% of all
   trips, and four of the five are in Manhattan. JFK is the only non-Manhattan zone in the top five.
-- **Cold weather had no visible effect on weekday evening demand; rain evenings were busier.**
+- **Cold weather had no visible effect on weekday evening demand; rain evenings were busier in this sample.**
   Across all hours, average trips per hour were 4,687 in mild/dry weather, 4,743 in rain, 3,824 in
   snow and 2,923 in freezing hours (-38%). Most of that raw gap is not weather: 40% of freezing
   hours fall between midnight and 6 am (about 21% for mild hours), and all freezing evenings are in
@@ -67,10 +72,8 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
   trips with tips above 200% of the fare, which led to a new validation rule.
 
 **Caveats:** this is four months of data, so the seasonal findings are indicative only. Weather
-comes from a single point for all of NYC. "Freezing" means freezing and dry; rain and snow hours are classed 
-separately whatever the temperature. Freezing hours are concentrated overnight and in the colder, quieter months, 
-so the raw drop mostly reflects time of day and season rather than the cold (see above). Snow covers only 81 hours. 
-The analysis shows association, not cause.
+comes from a single point for all of NYC. "Freezing" means freezing and dry; rain and snow hours are classed
+separately whatever the temperature. Freezing hours are concentrated overnight, and all freezing evenings fall in January and February, the quieter months, so the raw drop mostly reflects time of day and season rather than the cold itself. Snow covers only 81 hours. The analysis shows association, not cause.
 
 The queries behind every number are in [sql/analysis](sql/analysis).
 
@@ -101,7 +104,7 @@ not proven causes (four months, one city, one weather point).
 | Demand is highest on weekday evenings | Weekdays average 7,894 trips in the 6 pm hour; weekends peak at 6,425 at 5 pm | Schedule the largest share of driver shifts for 5-7 pm on weekdays, and keep a smaller, earlier peak in mind for weekends |
 | Late-night demand is mainly a weekend pattern | Midnight to 4 am averages about 16,000 trips per day on weekends against about 3,400 on weekdays | Test by day of week first; if the late-night peak is concentrated on Friday and Saturday nights, staff for those nights and keep a minimal fleet on weeknights |
 | Demand is concentrated in a few zones | The top 5 zones make up about 22% of all trips; 4 of 5 are in Manhattan, and JFK is the only exception | Position vehicles and dispatch effort around Midtown, the Upper East Side and JFK first |
-| Cold weather showed no visible effect on weekday evening demand; rain evenings were busier | Across all hours freezing was -38% against mild, but 40% of freezing hours are overnight and all are in January and February. In same-month weekday 5-8 pm hours, freezing was about the same as mild (17 hours) and snow +3% (5 hours). Rain was about 15% higher (36 hours, 16 evenings), positive in 3 of 4 months | Do not cut supply for cold weather on this evidence. Test extra weekday-evening capacity on rainy days, after checking the pattern on more months (for example 2023) |
+| Cold weather showed no visible effect on weekday evening demand; rain evenings were busier in this sample | Across all hours freezing was -38% against mild, but 40% of freezing hours are overnight and all freezing evenings are in January and February. In same-month weekday 5-8 pm hours, freezing was about the same as mild (17 hours) and snow +3% (5 hours). Rain was about 15% higher (36 hours, 16 evenings), positive in 3 of 4 months | Do not cut supply for cold weather on this evidence. Test extra weekday-evening capacity on rainy days, after checking the pattern on more months (for example 2023) |
 | Revenue growth is mostly more trips, not higher fares | Trips per day rose about 11% from February to March (99,600 to 110,500) while the average fare rose about 4% ($18.39 to $19.13) | Treat volume as the main revenue driver and check what drove the March increase before forecasting from it |
 | About 3.8% of reported trips are invalid | 500k of 13.1M raw rows rejected; mostly zero-distance trips, plus zero or negative fares and impossible durations | Validate fare, distance and trip duration at the point of recording, so revenue figures are not distorted by bad records |
 
