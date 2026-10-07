@@ -10,7 +10,8 @@ insights through a Streamlit dashboard. The repo also documents the database per
 > materialized views) · dimensional modelling · dbt (incremental models, tests) · Airflow ·
 > Docker Compose · data quality · CI/CD (GitHub Actions) · analytics & storytelling
 
-[Jump to: Quick start](#quick-start) · [Performance work](#performance-work) · [Design decisions](#design-decisions)
+[Jump to: Key findings](#key-findings) · [Quick start](#quick-start) · [Performance work](#performance-work) · 
+[Design decisions](#design-decisions)
 
 ## Business questions
 1. When and where is taxi demand highest?
@@ -184,7 +185,9 @@ docker compose exec -T airflow bash -c "airflow dags trigger nyc_taxi_pipeline -
 
 ## Data quality
 dbt tests: unique / not-null keys, accepted values, referential integrity (fact → every dimension) and
-custom tests (no non-positive fares, dropoff after pickup, tip outlier guard). Run: `make dbt-test`.
+custom tests (no non-positive fares, dropoff after pickup, tip outlier guard). Run: `make dbt-test`. 
+CI runs `dbt build` against an empty database to validate the SQL, model dependencies and test definitions; 
+the data tests run against the loaded data with `make dbt-test`.
 
 ## Performance work
 
@@ -221,6 +224,6 @@ ruff check . && pytest -q
 ```
 
 ## Possible extensions
-Green taxi / FHV data, dbt snapshots, Great Expectations, a cloud warehouse port (BigQuery / Snowflake), dbt docs on GitHub Pages.
+Same months from 2023 (to test seasonality), green taxi / FHV data, dbt snapshots, Great Expectations, a cloud warehouse port (BigQuery / Snowflake), dbt docs on GitHub Pages.
 
 Data: NYC TLC Trip Record Data and Open-Meteo (see their terms). Licence: MIT.
