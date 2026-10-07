@@ -25,3 +25,20 @@ join marts.dim_weather w on w.weather_hour = h.pickup_hour
 where extract(hour from h.pickup_hour) between 17 and 19
 group by 1
 order by 1;
+
+-- 3. Same 5-8 pm comparison split by month, so seasonal demand differences are removed
+with h as (
+    select pickup_hour, count(*) as trips
+    from marts.fact_trips
+    group by 1
+)
+select
+    to_char(w.weather_hour, 'YYYY-MM') as month,
+    w.weather_category,
+    count(*) as hours,
+    round(avg(h.trips)) as avg_trips_5_to_8pm
+from h
+join marts.dim_weather w on w.weather_hour = h.pickup_hour
+where extract(hour from h.pickup_hour) between 17 and 19
+group by 1, 2
+order by 1, 2;
