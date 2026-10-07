@@ -45,8 +45,8 @@ Based on 12.57M valid yellow-taxi trips, January to April 2024.
 - **Cold weather had no visible effect on weekday evening demand; rain evenings were busier in this sample.**
   Across all hours, average trips per hour were 4,687 in mild/dry weather, 4,743 in rain, 3,824 in
   snow and 2,923 in freezing hours (-38%). Most of that raw gap is not weather: 40% of freezing
-  hours fall between midnight and 6 am (about 21% for mild hours), and all freezing evenings are in
-  January and February, when demand was lower overall. Comparing only weekday 5-8 pm hours within the
+  hours fall between midnight and 6 am (about 21% for mild hours), and about 92% of freezing hours are in January
+  and February (517 of 563), the months with the lowest demand. Comparing only weekday 5-8 pm hours within the
   same month, freezing hours averaged about the same as mild hours (+4% in January, -4% in February;
   17 hours) and snow was +3% (5 hours, January only). Rain evenings were busier than mild evenings in
   January (+11%, 7 hours), March (+16%, 11 hours) and April (+22%, 14 hours), and slightly quieter in
