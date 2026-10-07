@@ -198,7 +198,7 @@ Full queries and caveats: [sql/performance](sql/performance) and [docs/benchmark
 
 | Technique | Query | Before | After |
 |---|---|---|---|
-| B-tree index | Pickups by zone, one day | 16,446 ms | 237 ms (69x faster) |
+| B-tree index | Pickups by zone, one day | 16,446 ms (cold) | 237 ms (about 69x faster) |
 | BRIN index | Same query | 16,446 ms | 771 ms (21x faster) |
 | Month partitioning | Trips by zone, one month | 3,961 ms (plain table) | 2,046 ms (1.9x faster) |
 | Materialized view | Daily KPIs, one day | 1,682 ms | 0.18 ms |
